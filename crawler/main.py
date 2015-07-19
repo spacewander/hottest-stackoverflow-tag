@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
+
 import datetime
 import os
 from sys import argv
@@ -74,7 +75,7 @@ def extract_changed_tags(old, new, output=''):
     if output == '': # write to stdout
         for tag in data:
             if tag[1] > 0:
-                print tag_to_string(tag)
+                print(tag_to_string(tag))
     else:
         with open(output, 'a') as f:
             for tag in data:
@@ -94,9 +95,9 @@ def main():
         start_at = datetime.datetime.now()
         data = crawl_tags_using_threads(5)
         end_at = datetime.datetime.now()
-        print "Time used: %d" % (end_at - start_at).total_seconds()
+        print("Time used: %d" % (end_at - start_at).total_seconds())
         if len(data) > 0:
-            print "Get tags %d" % len(data)
+            print("Get tags %d" % len(data))
             extract_tags_to_file(data, transform_time_to_filename(start_at))
 
 if __name__ == '__main__' :

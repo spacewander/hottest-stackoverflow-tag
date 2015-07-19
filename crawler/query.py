@@ -55,7 +55,7 @@ def diff_from_tag_files(old_file, new_file):
 def get_first_N_tags(old_file, new_file, N):
     diff = diff_from_tag_files(old_file, new_file)
     for tag_rank, tag in enumerate(diff):
-        print tag.name
+        print("%d\t%s" % (tag_rank + 1, tag.name))
         if tag_rank == N:
             return
 
@@ -63,9 +63,8 @@ def get_first_N_languages(old_file, new_file, N, languages):
     diff = diff_from_tag_files(old_file, new_file)
     language_rank = 0
     for tag in diff:
-        name = tag.name
-        if name in languages:
-            print name
+        if tag.name in languages:
+            print("%d\t%s" % (language_rank + 1, tag.name))
             language_rank += 1
         if language_rank == N:
             return
@@ -79,25 +78,25 @@ def get_rank_of_language(old_file, new_file, language, languages):
         if name in languages:
             language_rank += 1
         if name == language:
-            print "The tag rank is %d" % (tag_rank + 1)
-            print "The language rank is %d" % language_rank
-            print "The tag number is %d" % tag.value
+            print("The tag rank is %d" % (tag_rank + 1))
+            print("The language rank is %d" % language_rank)
+            print("The tag number is %d" % tag.value)
             return
-    print 'Tag not found'
+    print('Tag not found')
 
 def get_rank_of_tag(old_file, new_file, tag_name):
     diff = diff_from_tag_files(old_file, new_file)
     for tag_rank, tag in enumerate(diff):
         name = tag.name
         if name == tag_name:
-            print "The tag rank is %d" % (tag_rank + 1)
-            print "%d tags created in the period" % tag.value
+            print("The tag rank is %d" % (tag_rank + 1))
+            print("%d tags created in the period" % tag.value)
             return
-    print 'Tag not found'
+    print('Tag not found')
 
 def print_usage(script_name):
-    print "Usage: %s [tagname| -t tag_rank | -l language" % script_name
-    print "Print the tag rank (and language rank) of given target"
+    print("Usage: %s [tagname| -t tag_rank | -l language" % script_name)
+    print("Print the tag rank (and language rank) of given target")
 
 def filter_data_file(fn):
     return len(fn) == 14 # yy-MM-dd-hh-mm
@@ -126,9 +125,9 @@ def main():
     oldest_tag_file = sorted(filter(filter_data_file, os.listdir(data_dir)))[0]
     oldest_tag_file = os.path.join(data_dir, oldest_tag_file)
 
-    print "From %s to %s" % (
+    print("From %s to %s" % (
             convert_filename_to_timestamp(oldest_tag_file),
-            convert_filename_to_timestamp(latest_tag_file))
+            convert_filename_to_timestamp(latest_tag_file)))
 
     # -t tagname or -l language
     if len(argv) == 3:

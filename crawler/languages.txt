@@ -15,6 +15,7 @@ assembly
 ats
 autohotkey
 awk
+bash
 bitbake
 blitzbasic
 blitzmax
@@ -262,3 +263,4 @@ xslt
 xtend
 zephir
 zimpl
+zsh

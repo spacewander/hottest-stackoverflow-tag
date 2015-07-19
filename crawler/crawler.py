@@ -30,8 +30,8 @@ def parse_tags_page(text):
             data.append((td.find_class('post-tag')[0].text_content(), count))
 
     if not len(data):
-        print "Parse failed with:"
-        print text
+        print("Parse failed with:")
+        print(text)
     return data, False
 
 class Crawler(Thread):
@@ -57,23 +57,23 @@ class Crawler(Thread):
 
     def get_tags_from_page(self):
         url = stackoverflow_url(self.pagenum)
-        print "Try to get %s" % url
+        print("Try to get %s" % url)
         res = requests.get(url, headers=HEADERS)
         if res.status_code in (200, 304):
             data, too_small_tag_met = parse_tags_page(res.text)
             self.data.extend(data)
             if too_small_tag_met:
-                print "Crawling stops at %s" % url
+                print("Crawling stops at %s" % url)
                 return False
             return True
-        print "Failed with %s : %d" % (url, res.status_code)
+        print("Failed with %s : %d" % (url, res.status_code))
         self.error = True
         return False
 
 
 
 def crawl_tags_using_threads(thread_num):
-    print "Crawl stackoverflow's tags with %d threads" % thread_num
+    print("Crawl stackoverflow's tags with %d threads" % thread_num)
     if thread_num < 1 :
         raise ValueError('Thread number should be at least 1')
     # If you crawl too fast, stackoverflow will return 503 back
@@ -85,8 +85,9 @@ def crawl_tags_using_threads(thread_num):
     data = []
     for i, crawler in enumerate(crawlers):
         if crawler.error:
-            print "Thread %d failed during crawling, try again later" % i
+            print("Thread %d failed during crawling, try again later" % i)
             return []
         else:
             data.extend(crawler.data)
     return data
+
