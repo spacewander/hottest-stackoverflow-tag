@@ -1,5 +1,6 @@
 from threading import Thread
 from time import sleep
+import random
 
 from lxml import html
 from requests.exceptions import ConnectionError, HTTPError, Timeout
@@ -15,9 +16,10 @@ def stackoverflow_url(pagenum=1, order_by_popular=True):
 
 def parse_tags_page(text):
     """
-    Return each tags represented with (tagname, count),
-    and an extra boolean value indicated if we meet a tag smaller than required.
-    So we can tell high level function to stop.
+    Return:
+    Each tags represented with (tagname, count).
+    An extra boolean value indicated if we meet a tag smaller than required.
+        So we can tell high level function to stop.
     """
     doc = html.fromstring(text)
     tags = doc.get_element_by_id('tags-browser')
@@ -45,31 +47,44 @@ class Crawler(Thread):
         self.error = False
 
     def run(self):
-        try:
-            while True:
-                ok = self.get_tags_from_page()
-                if not ok:
-                    break
-                self.pagenum += self.interval
-                sleep(2)
-        except (ConnectionError, HTTPError, Timeout):
-            self.error = True
+        retry = 1
+        while not self.error or retry <= 3:
+            try:
+                while True:
+                    ok = self.get_tags_from_page()
+                    if not ok:
+                        break
+                    self.pagenum += self.interval
+                    sleep(2)
+            except (ConnectionError, HTTPError, Timeout):
+                self.error = True
+                print("Network Error happened... Retry the %d time" % retry)
+                sleep(300)
+                retry += 1
 
     def get_tags_from_page(self):
         url = stackoverflow_url(self.pagenum)
         print("Try to get %s" % url)
-        res = requests.get(url, headers=HEADERS)
-        if res.status_code in (200, 304):
-            data, too_small_tag_met = parse_tags_page(res.text)
-            self.data.extend(data)
-            if too_small_tag_met:
-                print("Crawling stops at %s" % url)
-                return False
-            return True
+        retry = 1
+        while retry <= 3:
+            res = requests.get(url, headers=HEADERS)
+            if res.status_code in (200, 304):
+                need_continue = self._get_tags_from_downloaded_text(res.text)
+                if not need_continue:
+                    print("Crawling stops at %s" % url)
+                return need_continue
+            print("Retry... the %d time" % retry)
+            retry += 1
+            # a smarter crawler should know how to retry it randomly
+            sleep(retry * 5 + random.randint(0, retry * 5))
         print("Failed with %s : %d" % (url, res.status_code))
         self.error = True
         return False
 
+    def _get_tags_from_downloaded_text(self, text):
+        data, too_small_tag_met = parse_tags_page(text)
+        self.data.extend(data)
+        return not too_small_tag_met
 
 
 def crawl_tags_using_threads(thread_num):
