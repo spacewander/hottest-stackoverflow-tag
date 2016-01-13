@@ -48,12 +48,12 @@ class Crawler(Thread):
 
     def run(self):
         retry = 1
-        while not self.error or retry <= 3:
+        while retry <= 3:
             try:
                 while True:
                     ok = self.get_tags_from_page()
                     if not ok:
-                        break
+                        return
                     self.pagenum += self.interval
                     sleep(2)
             except (ConnectionError, HTTPError, Timeout):
