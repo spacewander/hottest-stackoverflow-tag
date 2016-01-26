@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 
 from lxml import html
@@ -12,44 +12,15 @@ HEADERS = {'User-Agent': USER_AGENT}
 LOWEST_SCORE = 25
 
 
-def stackoverflow_url(pagenum=1, order_by_popular=True):
-    suffix = '&tab=popular' if order_by_popular else ''
-    return "http://stackoverflow.com/tags?page=%s" % (str(pagenum) + suffix)
-
-
-def parse_tags_page(text):
-    """
-    Return:
-    Each tags represented with (tagname, count).
-    An extra boolean value indicated if we meet a tag smaller than required.
-        So we can tell high level function to stop.
-    """
-    doc = html.fromstring(text)
-    tags = doc.get_element_by_id('tags-browser')
-    data = []
-    for row in tags.findall('tr'):
-        for td in row.findall('td'):
-            count = int(
-                td.find_class('item-multiplier-count')[0].text_content())
-            if count <= LOWEST_SCORE:
-                return data, True
-            data.append((td.find_class('post-tag')[0].text_content(), count))
-
-    if not len(data):
-        print("Parse failed with:")
-        print(text)
-    return data, False
-
-
 class Crawler(Thread):
+    lock = Lock()
+    pagenum = 0
 
-    def __init__(self, start_pagenum, interval, logger):
+    def __init__(self, logger):
         super(Crawler, self).__init__()
-        if start_pagenum < 1 or int(start_pagenum) != start_pagenum:
-            raise ValueError(
-                "The start page number should integer greater than 0")
-        self.pagenum = start_pagenum
-        self.interval = interval
+        with Crawler.lock:
+            Crawler.pagenum += 1
+            self.pagenum = Crawler.pagenum
         self.data = []
         self.error = False
         self.logger = logger
@@ -58,12 +29,16 @@ class Crawler(Thread):
         retry = 1
         while True:
             try:
+                # use previous self.pagenum in retrying
                 need_continue = self.get_tags_from_page()
-                if not need_continue:
-                    return
                 # not network error
                 retry = 1
-                self.pagenum += self.interval
+                with Crawler.lock:
+                    Crawler.pagenum += 1
+                    self.pagenum = Crawler.pagenum
+                    Crawler.finished = not need_continue
+                if Crawler.finished:
+                    return
                 sleep(2)
             except (ConnectionError, HTTPError, Timeout) as err:
                 # network error happened... Start the retry path
@@ -76,7 +51,7 @@ class Crawler(Thread):
                     return
 
     def get_tags_from_page(self):
-        url = stackoverflow_url(self.pagenum)
+        url = self.stackoverflow_url(self.pagenum)
         self.logger.info("Try to get %s" % url)
         res = requests.get(url, headers=HEADERS)
         if res.status_code in (200, 304):
@@ -88,9 +63,36 @@ class Crawler(Thread):
         raise HTTPError()
 
     def _get_tags_from_downloaded_text(self, text):
-        data, too_small_tag_met = parse_tags_page(text)
+        data, too_small_tag_met = self.parse_tags_page(text)
         self.data.extend(data)
         return not too_small_tag_met
+
+    def stackoverflow_url(self, pagenum=1, order_by_popular=True):
+        suffix = '&tab=popular' if order_by_popular else ''
+        return "http://stackoverflow.com/tags?page=%s" % (str(pagenum) + suffix)
+
+    def parse_tags_page(self, text):
+        """
+        Return:
+        Each tags represented with (tagname, count).
+        An extra boolean value indicated if we meet a tag smaller than required.
+            So we can tell high level function to stop.
+        """
+        doc = html.fromstring(text)
+        tags = doc.get_element_by_id('tags-browser')
+        data = []
+        for row in tags.findall('tr'):
+            for td in row.findall('td'):
+                count = int(
+                    td.find_class('item-multiplier-count')[0].text_content())
+                if count <= LOWEST_SCORE:
+                    return data, True
+                data.append((td.find_class('post-tag')[0].text_content(), count))
+
+        if not len(data):
+            self.logger.debug("Parse failed with:")
+            self.logger.debug(text)
+        return data, False
 
 
 def crawl_tags_using_threads(thread_num, logger):
@@ -98,8 +100,7 @@ def crawl_tags_using_threads(thread_num, logger):
     if thread_num < 1:
         raise ValueError('Thread number should be at least 1')
     # If you crawl too fast, stackoverflow will return 503 back
-    crawlers = [Crawler(i, thread_num, logger)
-                for i in range(1, thread_num + 1)]
+    crawlers = [Crawler(logger) for i in range(thread_num)]
     for crawler in crawlers:
         crawler.start()
     for i, crawler in enumerate(crawlers):

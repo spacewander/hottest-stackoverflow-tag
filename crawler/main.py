@@ -141,7 +141,7 @@ def main():
                       % data_file)
                 return
 
-        logger = create_logger(with_file=True)
+        logger = create_logger(with_file=False)
         # logger = create_logger()
         start_at = datetime.now()
         data = crawl_tags_using_threads(5, logger)
