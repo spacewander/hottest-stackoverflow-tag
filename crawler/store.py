@@ -7,6 +7,8 @@ import sys
 import redis
 
 Redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+META_DATA_LINES = 4
+MAX_TAGS_IN_ONE_FILE = 10000
 # date:yymmdd is zset{language: number}
 # language:xx is zset{'date:number': date}. For example, '160101:2000': 160101.
 
@@ -17,15 +19,19 @@ def store_date_file(fn):
     date_key = 'date:' + prefix
     languages = []
     with open(fn) as f:
-        for i in range(4):
+        for i in range(META_DATA_LINES):
             next(f)
         pipe = Redis.pipeline()
-        for line in f:
-            name, value = line.split()
-            languages.append(value)
-            languages.append(name)
-            pipe.zadd('language:' + name,
-                      int(prefix), prefix + ':' + str(value))
+        try:
+            for i in range(MAX_TAGS_IN_ONE_FILE):
+                line = next(f)
+                name, value = line.split()
+                languages.append(value)
+                languages.append(name)
+                pipe.zadd('language:' + name,
+                        int(prefix), prefix + ':' + str(value))
+        except StopIteration:
+            pass
         pipe.zadd(date_key, *languages)
         pipe.execute()
 
