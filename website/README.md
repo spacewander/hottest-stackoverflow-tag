@@ -10,7 +10,7 @@ TODO
 
 #### rank/<yyyy-mm-dd>?rank=N
 
-Get first N tags, order by tag number in given day
+Get first N tags, order by tag number in given date
 
 ```
 TODO

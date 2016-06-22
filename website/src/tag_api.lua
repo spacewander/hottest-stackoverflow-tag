@@ -3,6 +3,7 @@ local json_encode = json.encode
 local utils = require './utils'
 local is_iso_time = utils.is_iso_time
 local raise_bad_request = utils.raise_bad_request
+local json_response = utils.json_response
 local Tag = require './tag'
 
 local args = ngx.req.get_uri_args(2)
@@ -21,9 +22,4 @@ if not is_iso_time(to) then
 end
 
 local res = Tag:new(ngx.var.tag_name):between(from, to)
-res, err = json_encode(res)
-if res ~= nil then
-    ngx.say(res)
-else
-    raise_bad_request(err)
-end
+json_response(res)

@@ -6,8 +6,13 @@ local _M = {}
 -- Only check if given format matched 'yyyy-mm-dd', don't require it to be a valid date.
 -- By the way, this function requires the yyyy is in the 21th century.
 function _M.is_iso_time(time_fmt)
+    if time_fmt == nil then return false end
     m, err = ngx.re.match(time_fmt, '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]')
     return m ~= nil
+end
+
+function _M.is_postive(num)
+    return num ~= nil and num > 0
 end
 
 function _M.raise_bad_request(msg)
@@ -31,4 +36,14 @@ function _M.num_to_time_fmt(num)
             ..string.sub(s, 5, 6)
     return fmt
 end
+
+function _M.json_response(res)
+    res, err = json_encode(res)
+    if res ~= nil then
+        ngx.say(res)
+    else
+        _M.raise_bad_request(err)
+    end
+end
+
 return _M
