@@ -5,11 +5,12 @@ from lxml import html
 from requests.exceptions import ConnectionError, HTTPError, Timeout
 import requests
 
+from config import LOWEST_SCORE
+
 USER_AGENT = ('Mozilla/5.0 (X11; Linux x86_64) '
               'AppleWebKit/537.36(KHTML, like Gecko) '
               'Chrome/40.0.2214.115 Safari/537.36')
 HEADERS = {'User-Agent': USER_AGENT}
-LOWEST_SCORE = 100
 
 
 class Crawler(Thread):

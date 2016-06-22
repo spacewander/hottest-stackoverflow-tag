@@ -5,10 +5,7 @@ from collections import namedtuple
 from sys import argv, exit
 import os
 
-from main import DATA_DIR
-
-# The lines of metadata in tag files
-META_DATA_LINES = 4
+from config import DATA_DIR, META_DATA_LINES
 
 Tag = namedtuple('Tag', ['name', 'value'])
 

@@ -5,9 +5,9 @@ import os
 import re
 import sys
 import redis
+from config import META_DATA_LINES
 
 Redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-META_DATA_LINES = 4
 MAX_TAGS_IN_ONE_FILE = 10000
 # date:yymmdd is zset{language: number}
 # language:xx is zset{'date:number': date}. For example, '160101:2000': 160101.

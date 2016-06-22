@@ -20,9 +20,8 @@ import datetime
 import os
 import re
 import sys
+from config import META_DATA_LINES
 
-
-META_DATA_LINES = 4
 
 def to_date(fn):
     year = 2000 + int(fn[:2])

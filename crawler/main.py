@@ -7,9 +7,8 @@ import sys
 from datetime import datetime
 from os.path import dirname, isdir, isfile, join, realpath
 
-from crawler import crawl_tags_using_threads, LOWEST_SCORE
-
-DATA_DIR = 'data'
+from config import DATA_DIR, LOWEST_SCORE
+from crawler import crawl_tags_using_threads
 
 
 def transform_time_to_filename(time):
