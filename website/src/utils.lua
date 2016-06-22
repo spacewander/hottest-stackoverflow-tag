@@ -17,5 +17,18 @@ function _M.raise_bad_request(msg)
     ngx.exit(ngx.HTTP_BAD_REQUEST)
 end
 
+-- convert time format as yyyy-mm-dd to num as yymmdd
+function _M.time_fmt_to_num(time_fmt)
+    s = string.sub(time_fmt, 3, 4)..string.sub(time_fmt, 6, 7)
+            ..string.sub(time_fmt, 9)
+    num = tonumber(s)
+    return num
+end
 
+function _M.num_to_time_fmt(num)
+    s = tostring(num)
+    fmt = '20'..string.sub(s, 1, 2)..'-'..string.sub(s, 3, 4)..'-'
+            ..string.sub(s, 5, 6)
+    return fmt
+end
 return _M
