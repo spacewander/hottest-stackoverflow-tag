@@ -12,7 +12,7 @@ function _M.is_iso_time(time_fmt)
 end
 
 function _M.is_postive(num)
-    return num ~= nil and num > 0
+    return num ~= nil and num > 0 and math.floor(num) == num
 end
 
 function _M.raise_bad_request(msg)
@@ -38,6 +38,7 @@ function _M.num_to_time_fmt(num)
 end
 
 function _M.json_response(res)
+    res = {data = res}
     res, err = json_encode(res)
     if res ~= nil then
         ngx.say(res)

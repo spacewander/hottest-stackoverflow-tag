@@ -1,5 +1,3 @@
-local json = require 'cjson.safe'
-local json_encode = json.encode
 local utils = require './utils'
 local is_iso_time = utils.is_iso_time
 local is_postive = utils.is_postive

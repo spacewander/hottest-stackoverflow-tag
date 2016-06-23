@@ -31,7 +31,8 @@ function _M.between(self, from, to)
         end
         return results
     else
-        ngx.log(ngx.ERR, 'failed to get redis data: ', err)
+        ngx.log(ngx.ERR, 'failed to get tag data from '..from..' to '..to..
+            ': ', err)
         return {}
     end
 end

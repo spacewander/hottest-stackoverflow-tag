@@ -2,7 +2,7 @@
 
 #### tag/<tagX>?from=yyyy-mm-dd&to=yyyy-mm-dd
 
-Get tag number of `tagX`, in [from, to)
+Get tag number of `tagX`, in [from, to]
 
 ```
 TODO
@@ -18,7 +18,7 @@ TODO
 
 #### rank?from=yyyy-mm-dd&to=yyyy-mm-dd&rank=N
 
-Get first N tags, order by increased tag number in given range [from, to)
+Get first N tags, order by increased tag number in given range [from, to]
 
 ```
 TODO
