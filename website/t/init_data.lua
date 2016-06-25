@@ -22,12 +22,14 @@ local dates = {
     ['date:160101'] = {
         lua = '1234',
         ['c#'] = '6170',
-        python = '12340'
+        python = '12340',
+        php = '19880'
     },
     ['date:160102'] = {
         lua = '1300',
         ['c#'] = '9170',
-        python = '13000'
+        python = '13000',
+        cpp = '11000'
     }
 }
 for name, date in pairs(dates) do
