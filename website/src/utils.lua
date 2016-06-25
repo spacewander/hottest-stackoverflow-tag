@@ -19,7 +19,8 @@ function _M.raise_bad_request(msg)
     ngx.status = ngx.HTTP_BAD_REQUEST
     ngx.say(json_encode({
         error = msg,
-        status_code = ngx.HTTP_BAD_REQUEST}))
+        status_code = ngx.HTTP_BAD_REQUEST
+    }))
     ngx.exit(ngx.OK)
 end
 
@@ -36,6 +37,15 @@ function _M.num_to_time_fmt(num)
     fmt = '20'..string.sub(s, 1, 2)..'-'..string.sub(s, 3, 4)..'-'
             ..string.sub(s, 5, 6)
     return fmt
+end
+
+function _M.vacant_data()
+    ngx.status = ngx.HTTP_NOT_FOUND
+    ngx.say(json_encode({
+        error = "Data is vacant in specific date.",
+        status_code = ngx.HTTP_NOT_FOUND
+    }))
+    ngx.exit(ngx.OK)
 end
 
 function _M.json_response(res)

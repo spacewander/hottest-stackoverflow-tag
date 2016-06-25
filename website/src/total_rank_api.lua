@@ -2,6 +2,7 @@ local utils = require './utils'
 local is_iso_time = utils.is_iso_time
 local is_postive = utils.is_postive
 local raise_bad_request = utils.raise_bad_request
+local vacant_data = utils.vacant_data
 local json_response = utils.json_response
 local Rank = require './rank'
 
@@ -16,4 +17,7 @@ if not is_postive(N) then
         "'rank' argument should be postive.")
 end
 local res = Rank:new(N):in_the(date)
+if #res == 0 then
+    vacant_data()
+end
 json_response(res)
