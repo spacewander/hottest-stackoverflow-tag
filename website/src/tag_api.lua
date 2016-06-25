@@ -4,6 +4,13 @@ local raise_bad_request = utils.raise_bad_request
 local json_response = utils.json_response
 local Tag = require './tag'
 
+local tag_name = ngx.unescape_uri(ngx.var.tag_name)
+local m, _ = ngx.re.match(tag_name, "\\s+") 
+if m then
+    raise_bad_request(
+        "'tagX' argument should not contain whitespace.")
+end
+
 local args = ngx.req.get_uri_args(2)
 local from = args['from']
 local to = args['to']
@@ -19,5 +26,5 @@ if not is_iso_time(to) then
         "'to' argument should be in ISO date format and between [2000, 2099].")
 end
 
-local res = Tag:new(ngx.var.tag_name):between(from, to)
+local res = Tag:new(tag_name):between(from, to)
 json_response(res)

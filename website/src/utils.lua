@@ -7,7 +7,7 @@ local _M = {}
 -- By the way, this function requires the yyyy is in the 21th century.
 function _M.is_iso_time(time_fmt)
     if time_fmt == nil then return false end
-    m, err = ngx.re.match(time_fmt, '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]')
+    m, err = ngx.re.match(time_fmt, '^20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]$')
     return m ~= nil
 end
 
@@ -16,10 +16,11 @@ function _M.is_postive(num)
 end
 
 function _M.raise_bad_request(msg)
+    ngx.status = ngx.HTTP_BAD_REQUEST
     ngx.say(json_encode({
         error = msg,
         status_code = ngx.HTTP_BAD_REQUEST}))
-    ngx.exit(ngx.HTTP_BAD_REQUEST)
+    ngx.exit(ngx.OK)
 end
 
 -- convert time format as yyyy-mm-dd to num as yymmdd
